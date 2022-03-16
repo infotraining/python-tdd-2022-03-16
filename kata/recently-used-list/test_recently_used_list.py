@@ -40,6 +40,7 @@ class RecentlyUsedList:
 
 class Test_RecentlyUsedList:
 
+    @pytest.mark.initial_state
     def test_when_created_is_empty(self):
         rul = RecentlyUsedList()
         assert rul.empty()

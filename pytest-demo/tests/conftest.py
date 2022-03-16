@@ -5,3 +5,7 @@ def setup_suite():
     print("STARTING TESTS")
     yield
     print("FINISHED TESTS")
+
+@pytest.fixture
+def item():
+    return "zero"
