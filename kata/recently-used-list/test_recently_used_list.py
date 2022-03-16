@@ -2,17 +2,29 @@ import pytest
 
 
 class RecentlyUsedList:
-    def __init__(self):
+    def __init__(self, max_len=None):
         self._rul = []
+        assert max_len is None or max_len > 0
+        self._max_len = max_len
 
     def add(self, item):
+        self._check_not_empty_string(item)
         self._remove_if_duplicate(item)
+        self._remove_older_when_full()
         self._rul.insert(0, item)
+
+    def _remove_older_when_full(self):
+        if len(self) == self._max_len:
+            self._rul.pop()
 
     def _remove_if_duplicate(self, item):
         if item in self._rul:
             self._rul.remove(item)
-        
+
+    def _check_not_empty_string(self, item):
+        if not item:
+            raise ValueError()
+
     def empty(self):
         return len(self._rul) == 0
 
@@ -109,5 +121,42 @@ class Test_RecentlyUsedList_InsertingDuplicate:
 
         # Assert
         assert rul[0] == 'one'
+        assert rul[1] == 'three'
+        assert rul[2] == 'two'
+
+class Test_RecentlyUsedList_InsertingEmptyString:
+
+    def test_raises_ValueError(self):
+        rul = RecentlyUsedList()
+
+        with pytest.raises(ValueError):
+            rul.add("")
+
+        
+class Test_RecentlyUsedList_BoundedCapacity:
+
+    def test_limits_the_length_of_list(self):
+        # Arrange
+        rul = RecentlyUsedList(max_len=3)
+        rul.add('one')
+        rul.add('two')
+        rul.add('three')
+
+        # Act
+        rul.add('four')
+
+        # Assert
+        assert len(rul) == 3
+
+    def test_when_adding_item_then_first_inserted_item_is_dropped(self):
+        # Arrange
+        rul = RecentlyUsedList(max_len=3)
+        rul.add('one')
+        rul.add('two')
+        rul.add('three')
+
+        rul.add('four')
+
+        assert rul[0] == 'four'
         assert rul[1] == 'three'
         assert rul[2] == 'two'
