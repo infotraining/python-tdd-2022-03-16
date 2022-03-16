@@ -2,5 +2,5 @@
 
 ## Slides
 
-* TODO
+* https://infotraining.bitbucket.io/python-tdd/slides/
 
