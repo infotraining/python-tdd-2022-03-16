@@ -39,11 +39,10 @@ class RecentlyUsedList:
 
 
 class Test_RecentlyUsedList:
-    
+
     def test_when_created_is_empty(self):
         rul = RecentlyUsedList()
         assert rul.empty()
-
 
     def test_when_item_is_added_then_is_not_empty(self):
         # Arrange / Given
@@ -56,7 +55,7 @@ class Test_RecentlyUsedList:
 
         assert not rul.empty()
 
-
+    @pytest.mark.smoke
     @pytest.mark.parametrize("items,expected_last", [
         (["one"], "one"),
         (["one", "two"], "two"),
@@ -71,13 +70,11 @@ class Test_RecentlyUsedList:
 
         assert rul.last() == expected_last
 
-
     def test_when_empty_then_last_raises_IndexError(self):
         rul = RecentlyUsedList()
 
         with pytest.raises(IndexError):
             rul.last()
-
 
     def test_is_indexable(self):
         rul = RecentlyUsedList()
@@ -91,7 +88,6 @@ class Test_RecentlyUsedList:
         assert rul[2] == 'one'
 
 
-
 class Test_RecentlyUsedList_InsertingDuplicate:
 
     @pytest.fixture
@@ -103,7 +99,6 @@ class Test_RecentlyUsedList_InsertingDuplicate:
 
         return rul
 
-
     def test_does_not_change_the_length(self, rul):
         len1 = len(rul)
 
@@ -114,7 +109,6 @@ class Test_RecentlyUsedList_InsertingDuplicate:
         # Assert
         assert len1 == len2
 
-
     def test_moves_value_to_the_front(self, rul):
         # Act
         rul.add('one')
@@ -124,6 +118,7 @@ class Test_RecentlyUsedList_InsertingDuplicate:
         assert rul[1] == 'three'
         assert rul[2] == 'two'
 
+
 class Test_RecentlyUsedList_InsertingEmptyString:
 
     def test_raises_ValueError(self):
@@ -132,7 +127,7 @@ class Test_RecentlyUsedList_InsertingEmptyString:
         with pytest.raises(ValueError):
             rul.add("")
 
-        
+
 class Test_RecentlyUsedList_BoundedCapacity:
 
     def test_limits_the_length_of_list(self):
