@@ -1,18 +1,19 @@
 import pytest
+import math
 
 
-class UnboundedGrid:
-    def wrap(self, x, y):
-        return (x, y)
+# class UnboundedGrid:
+#     def wrap(self, x, y):
+#         return (x, y)
 
 
-def test_UnboundedGrid_returns_unchanged_coordinates():
-    grid = UnboundedGrid()
-    assert grid.wrap(100, 100) == (100, 100)
+# def test_UnboundedGrid_returns_unchanged_coordinates():
+#     grid = UnboundedGrid()
+#     assert grid.wrap(100, 100) == (100, 100)
 
 
 class Grid:
-    def __init__(self, max_width, max_height) -> None:
+    def __init__(self, max_width=math.inf, max_height=math.inf) -> None:
         self.max_width = max_width
         self.max_height = max_height
 
@@ -28,7 +29,7 @@ def test_Grid_when_overflow_wraps_the_coordinates():
 
 
 class Rover:
-    def __init__(self, position, direction, grid=UnboundedGrid()) -> None:
+    def __init__(self, position, direction, grid=Grid()) -> None:
         self.position = position
         self.direction = direction
         self.grid = grid
