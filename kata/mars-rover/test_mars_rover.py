@@ -1,5 +1,6 @@
 import pytest
 import math
+from unittest.mock import Mock
 
 
 # class UnboundedGrid:
@@ -11,6 +12,10 @@ import math
 #     grid = UnboundedGrid()
 #     assert grid.wrap(100, 100) == (100, 100)
 
+
+class ObstacleError(Exception):
+    def __init__(self, x, y):
+        self.position = (x, y)
 
 class Grid:
     def __init__(self, max_width=math.inf, max_height=math.inf) -> None:
@@ -29,10 +34,11 @@ def test_Grid_when_overflow_wraps_the_coordinates():
 
 
 class Rover:
-    def __init__(self, position, direction, grid=Grid()) -> None:
+    def __init__(self, position, direction, grid=Grid(), obstacle_detector=None) -> None:
         self.position = position
         self.direction = direction
         self.grid = grid
+        self._obstacle_detector = obstacle_detector
         self.clockwise_direction_sequence = ['E', 'S', 'W', 'N']
         self.counterclockwise_direction_sequence = self.clockwise_direction_sequence[::-1]
         self._longitudinal_strides = {
@@ -43,15 +49,19 @@ class Rover:
     def _move(self, sense):
         x, y = self.position
         hor_stride, ver_stride = self._longitudinal_strides[self.direction]
-        self.position = self.grid.wrap(
-            x + hor_stride * sense, y + ver_stride * sense)
+        new_x, new_y = x + hor_stride * sense, y + ver_stride * sense
+
+        if self._obstacle_detector and not self._obstacle_detector.is_safe_to_move(new_x, new_y):
+            raise ObstacleError(new_x, new_y)
+
+        self.position = self.grid.wrap(new_x, new_y)
 
     def move_forward(self):
         self._move(self.FORWARD)
 
     def move_backward(self):
         self._move(self.BACKWARD)
-    
+
     def move(self, command_sequence):
         command_abbreviations = {"F": self.move_forward, "B": self.move_backward,
                                  "R": self.turn_right, "L": self.turn_left}
@@ -137,8 +147,41 @@ def test_Rover_moves_using_command_sequence():
     assert rover.position == (2, 2)
     assert rover.direction == "E"
 
+
 def test_Rover_raises_ValueError_with_wrong_sequence():
     command_sequence = "xFFRFFBFLR"
     rover = Rover(position=(0, 0), direction="N")
     with pytest.raises(ValueError):
         rover.move(command_sequence)
+
+
+class FakeObstacleDetector:
+    def __init__(self, obstacle_positions):
+        self._obstacles = set()
+        for op in obstacle_positions:
+            self._obstacles.add(op)
+
+    def is_safe_to_move(self, x, y):
+        return not ((x, y) in self._obstacles)
+
+
+def test_Rover_if_obstacle_detected_position_is_not_changed():
+    fake_obstacle_detector = FakeObstacleDetector([(2, 3)])
+
+    rover = Rover((2, 2), 'N', Grid(), fake_obstacle_detector)
+
+    try:
+        rover.move_forward()
+    except:
+        pass
+
+    assert rover.position == (2, 2)
+
+def test_Rover_if_obstacle_detected_position_ObstacleError_is_raised():
+    fake_obstacle_detector = FakeObstacleDetector([(2, 3)])
+
+    rover = Rover((2, 2), 'N', Grid(), fake_obstacle_detector)
+
+    with pytest.raises(ObstacleError):
+        rover.move_forward()
+        assert err.value.position == (2, 3)

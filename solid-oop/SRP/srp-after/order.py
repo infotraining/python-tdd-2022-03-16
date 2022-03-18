@@ -54,22 +54,22 @@ class PaymentService:
 
 
 class Order:
-    # def __init__(self,
-    #              notification_service=None,
-    #              reservation_service=None,
-    #              payment_service=None):
-    #     """Dependency Injection"""
-    #     self._notification_service = notification_service if notification_service else NotificationService()
-    #     self._reservation_service = reservation_service if reservation_service else ReservationService()
-    #     self._payment_service = payment_service if payment_service else PaymentService()
+    def __init__(self,
+                 notification_service=None,
+                 reservation_service=None,
+                 payment_service=None):
+        """Dependency Injection"""
+        self._notification_service = notification_service if notification_service else NotificationService()
+        self._reservation_service = reservation_service if reservation_service else ReservationService()
+        self._payment_service = payment_service if payment_service else PaymentService()
 
-    def __init__(self):
-        """
-        No dependency injection
-        """
-        self._notification_service = NotificationService()
-        self._reservation_service = ReservationService()
-        self._payment_service = PaymentService()
+    # def __init__(self):
+    #     """
+    #     No dependency injection
+    #     """
+    #     self._notification_service = NotificationService()
+    #     self._reservation_service = ReservationService()
+    #     self._payment_service = PaymentService()
 
     def checkout(self, cart: Cart, payment_details: PaymentDetails, notify_customer: bool):
         if payment_details.payment_method == PaymentMethod.CREDIT_CARD:
