@@ -1,33 +1,43 @@
 from unittest.mock import Mock, call
+import pytest
 from todolist.app import ToDoApp
 
 
-def test_todoapp_prompt():
-    mock_input = Mock(return_value='quit')
-    mock_output = Mock()
-    app = ToDoApp(io=(mock_input, mock_output))
+@pytest.fixture
+def input_mock():
+    return Mock()
+
+
+@pytest.fixture
+def output_mock():
+    return Mock()
+
+
+@pytest.fixture
+def app(input_mock, output_mock):
+    app = ToDoApp(io=(input_mock, output_mock))
+    return app
+
+
+def test_todoapp_prompt(input_mock, output_mock, app):
+    input_mock.return_value = 'quit'
 
     app.run()
 
-    assert mock_output.call_args_list[0] == call("ToDo list:\n\n\n> ")
+    assert output_mock.call_args_list[0] == call("ToDo list:\n\n\n> ")
 
 
-def test_todoapp_quit_prints_bye_and_exits():
-    mock_input = Mock(return_value='quit')
-    mock_output = Mock()
-    app = ToDoApp(io=(mock_input, mock_output))
+def test_todoapp_quit_prints_bye_and_exits(input_mock, output_mock, app):
+    input_mock.return_value = 'quit'
 
     app.run()
 
-    assert mock_output.call_args == call("Bye!\n")
+    assert output_mock.call_args == call("Bye!\n")
 
 
-def test_todoapp_run_loops_until_quit():
-    mock_input = Mock()
-    mock_input.side_effect = ['cmd', 'cmd', 'cmd', 'quit']
-    mock_output = Mock()
-    app = ToDoApp(io=(mock_input, mock_output))
+def test_todoapp_run_loops_until_quit(input_mock, app):
+    input_mock.side_effect = ['cmd', 'cmd', 'cmd', 'quit']
 
     app.run()
 
-    assert mock_input.call_count == 4
+    assert input_mock.call_count == 4
