@@ -1,0 +1,8 @@
+setup.py
+todolist/__init__.py
+todolist/__main__.py
+todolist/app.py
+todolist.egg-info/PKG-INFO
+todolist.egg-info/SOURCES.txt
+todolist.egg-info/dependency_links.txt
+todolist.egg-info/top_level.txt
