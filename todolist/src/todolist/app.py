@@ -3,9 +3,13 @@ class ToDoApp:
         self._in, self._out = io
 
     def run(self):
-        self._out("ToDo list:\n\n\n> ")
+        while True:
+            self._out("ToDo list:\n\n\n> ")
 
-        cmd_text = self._in()
+            cmd_text = self._in()
         
-        if cmd_text == 'quit':
-            self._out('Bye!\n')
+            if cmd_text == 'quit':
+                break
+        
+        self._out('Bye!\n')
+            
