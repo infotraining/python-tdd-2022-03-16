@@ -3,6 +3,7 @@ from unittest.mock import Mock, call
 import pytest
 from todolist.app import ToDoApp
 
+
 def test_todoapp_prompt(input_mock, output_mock, app):
     input_mock.return_value = 'quit'
 
@@ -32,9 +33,17 @@ def test_todoapp_loop_executes_command(input_mock, app):
     input_mock.side_effect = ['cmd', 'quit']
     cmd_mock = Mock()
     app.register_command('cmd', cmd_mock)
-    
+
     app.run()
 
     cmd_mock.execute.assert_called_once()
 
 
+def test_todoapp_argument_is_passed_to_the_execute(input_mock, app):
+    input_mock.side_effect = ['cmd arg', 'quit']
+    cmd_mock = Mock()
+    app.register_command('cmd', cmd_mock)
+
+    app.run()
+
+    cmd_mock.execute.assert_called_once_with('arg')
