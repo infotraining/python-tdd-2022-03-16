@@ -51,8 +51,12 @@ class Rover:
         hor_stride, ver_stride = self._longitudinal_strides[self.direction]
         new_x, new_y = x + hor_stride * sense, y + ver_stride * sense
 
-        if self._obstacle_detector and not self._obstacle_detector.is_safe_to_move(new_x, new_y):
-            raise ObstacleError(new_x, new_y)
+        if self._obstacle_detector:
+            if not self._obstacle_detector.is_safe_to_move(new_x, new_y):
+                raise ObstacleError(new_x, new_y)
+
+        # if self._obstacle_detector and not self._obstacle_detector.is_safe_to_move(new_x, new_y):
+        #     raise ObstacleError(new_x, new_y)
 
         self.position = self.grid.wrap(new_x, new_y)
 
@@ -154,6 +158,8 @@ def test_Rover_raises_ValueError_with_wrong_sequence():
     with pytest.raises(ValueError):
         rover.move(command_sequence)
 
+############################################
+# Obstacle detection with FakeObject
 
 class FakeObstacleDetector:
     def __init__(self, obstacle_positions):
@@ -177,11 +183,64 @@ def test_Rover_if_obstacle_detected_position_is_not_changed():
 
     assert rover.position == (2, 2)
 
+
 def test_Rover_if_obstacle_detected_position_ObstacleError_is_raised():
     fake_obstacle_detector = FakeObstacleDetector([(2, 3)])
 
     rover = Rover((2, 2), 'N', Grid(), fake_obstacle_detector)
 
-    with pytest.raises(ObstacleError):
+    with pytest.raises(ObstacleError) as err:
         rover.move_forward()
         assert err.value.position == (2, 3)
+
+    
+############################################
+# Obstacle detection with mocks
+
+def test_Rover_checks_for_obstacle_before_move_forward():
+    # Arrange
+    mock_obstacle_detector = Mock()       
+    rover = Rover((2, 2), 'N', Grid(), mock_obstacle_detector)
+
+    # Act
+    rover.move_forward()
+
+    # Assert
+    mock_obstacle_detector.is_safe_to_move.assert_called_once_with(2, 3)
+
+
+def test_Rover_if_obstacle_detected_with_mock_position_is_not_changed():
+    # Arrange
+    mock_obstacle_detector = Mock()
+    mock_obstacle_detector.is_safe_to_move.return_value = False # configuration of mock to be a stub
+    rover = Rover((2, 2), 'N', Grid(), mock_obstacle_detector)
+
+    # Act 
+    try:
+        rover.move_forward()
+    except:
+        pass
+
+    # Assert
+    assert rover.position == (2, 2)
+
+def test_Rover_if_obstacle_detected_with_mock_position_ObstacleError_is_raised():
+    # Arrange
+    mock_obstacle_detector = Mock()
+    mock_obstacle_detector.is_safe_to_move.return_value = False # configuration of mock to be a stub
+    rover = Rover((2, 2), 'N', Grid(), mock_obstacle_detector)
+
+    with pytest.raises(ObstacleError) as err:
+        rover.move_forward()
+        assert err.value.position == (2, 3)
+
+    
+def test_Rover_if_obstacle_detected_with_mock_position_is_not_changed():
+    # Arrange
+    mock_obstacle_detector = Mock()
+    mock_obstacle_detector.is_safe_to_move.return_value = True # configuration of mock to be a stub
+    rover = Rover((2, 2), 'N', Grid(), mock_obstacle_detector)
+
+    rover.move_forward()
+
+    assert rover.position == (2, 3)
