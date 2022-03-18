@@ -241,6 +241,8 @@ def test_Rover_if_obstacle_detected_with_mock_position_is_not_changed():
     mock_obstacle_detector.is_safe_to_move.return_value = True # configuration of mock to be a stub
     rover = Rover((2, 2), 'N', Grid(), mock_obstacle_detector)
 
+    # Act
     rover.move_forward()
 
+    # Assert
     assert rover.position == (2, 3)
